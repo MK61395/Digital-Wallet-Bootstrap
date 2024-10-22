@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digital Wallet - Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lobster&family=Poppins:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #1a3636;
+        color: white;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+      }
+
+      .navbar-custom {
+        background-color: #40534c;
+        padding: 1rem;
+      }
+
+      .navbar-custom .navbar-brand {
+        margin: 0 auto;
+        font-size: 1.5rem;
+        color: #d6bd98;
+      }
+
+      .navbar-custom .material-icons {
+        color: #d6bd98;
+      }
+
+      .card-custom {
+        background-color: #40534c;
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .balance-card {
+        width: 80%;
+        margin: 1rem auto;
+        text-align: center;
+        background-color: #40534c;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .btn-custom {
+        background-color: #d6bd98;
+        color: #1a3636;
+        font-weight: 600;
+        padding: 12px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        width: 100%;
+      }
+
+      .btn-custom:hover {
+        background-color: #c7a57d;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .items-list {
+        padding: 1rem;
+      }
+
+      .item-card {
+        background-color: #677d6a;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+      }
+
+      .custom-margin {
+        margin-left: 20px; /* Adjust this value as needed */
+      }
+
+      /* Add these styles */
+      .notification-icon,
+      .logout-icon {
+        cursor: pointer; /* Change cursor to pointer */
+        margin-left: 20px; /* Add space between icons */
+        transition: color 0.3s ease; /* Smooth color transition */
+      }
+
+      .home-icon {
+        cursor: pointer; /* Change cursor to pointer */
+        /* Add space between icons */
+        transition: color 0.3s ease; /* Smooth color transition */
+      }
+
+      .notification-icon:hover,
+      .logout-icon:hover,
+      .home-icon:hover {
+        color: #1a3636; /* Change color on hover */
+      }
+
+      .btn-export-pdf {
+        background-color: #28a745;
+        color: white;
+        font-weight: 600;
+        padding: 12px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        width: 200px;
+        margin: 20px auto;
+        display: block;
+      }
+
+      .btn-export-pdf:hover {
+        background-color: #218838;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      @media (max-width: 768px) {
+        .balance-card {
+          width: 100%;
+        }
+
+        .items-list {
+          padding: 0;
+        }
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  </head>
+
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-custom">
+      <div class="container-fluid">
+        <span class="material-icons float-start home-icon" id="homeBtn"
+          >home</span
+        >
+        <span class="navbar-brand text-center">Digital Wallet</span>
+        <span class="material-icons float-end notification-icon"
+          >notifications</span
+        >
+        <span
+          class="material-icons float-end logout-icon custom-margin"
+          id="logoutBtn"
+          >logout</span
+        >
+        <!-- Add ID for logout -->
+      </div>
+    </nav>
+
+    <div class="balance-card card-custom">
+      <h4>
+        Current Balance: Rs.
+        <span id="currentBalance" class="animate-balance">30</span>
+      </h4>
+      <div id="lowBalanceAlert" class="alert alert-warning d-none" role="alert">
+        Please add more funds to your wallet!
+      </div>
+    </div>
+
+    <!-- Buttons Section -->
+    <div class="container text-center">
+      <div class="row">
+        <div class="col-4">
+          <button
+            class="btn btn-custom my-3 w-100 d-flex align-items-center justify-content-center"
+            id="addItemBtn"
+          >
+            <span class="material-icons me-2">add_circle</span> Add New Item
+          </button>
+        </div>
+        <div class="col-4">
+          <button
+            class="btn btn-custom my-3 w-100 d-flex align-items-center justify-content-center"
+            id="purchaseMoviesBtn"
+          >
+            <span class="material-icons me-2">shopping_bag</span> Purchase
+            Movies
+          </button>
+        </div>
+        <div class="col-4">
+          <button
+            class="btn btn-custom my-3 w-100 d-flex align-items-center justify-content-center"
+            id="manageWalletBtn"
+          >
+            <span class="material-icons me-2">account_balance_wallet</span>
+            Manage Wallet
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Export to PDF button -->
+    <div class="container text-center ">
+      <button class="btn btn-export-pdf " id="exportPdfBtn">
+        <span class="material-icons me-2 align-items-center">picture_as_pdf</span> Export to PDF
+      </button>
+    </div>
+
+    <!-- Items List -->
+    <div class="container items-list">
+      <h5 class="mb-3">Your Items</h5>
+      <div id="itemsContainer">
+        <!-- Example of stored items -->
+        <div class="item-card">
+          <p><strong>Card Name:</strong> Credit Card</p>
+          <p><strong>Number:</strong> **** **** **** 1234</p>
+        </div>
+        <div class="item-card">
+          <p><strong>Ticket Name:</strong> Bus Pass</p>
+          <p><strong>Details:</strong> Lahore to Islamabad, 12:00 PM</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Retrieve the user data from localStorage
+      const user = JSON.parse(localStorage.getItem("user"));
+
+      function renderItems() {
+        const itemsContainer = document.getElementById("itemsContainer");
+        itemsContainer.innerHTML = ""; // Clear previous content
+
+        const items = JSON.parse(localStorage.getItem("walletItems")) || [];
+
+        // Group items by type
+        const cards = items.filter((item) => item.type === "Card");
+        const tickets = items.filter((item) => item.type === "Ticket");
+        const passwords = items.filter((item) => item.type === "Password");
+
+        // Helper function to create item cards
+        const createItemCard = (item, index) => {
+          const card = document.createElement("div");
+          card.classList.add("item-card");
+
+          let content = "";
+          if (item.type === "Card") {
+            content = `
+        <p><strong>Card Number:</strong> **** **** **** ${item.number.slice(
+          -4
+        )}</p>
+        <p><strong>Expiration Date:</strong> ${item.expirationDate}</p>`;
+          } else if (item.type === "Ticket") {
+            content = `
+        <p><strong>Ticket Type:</strong> ${item.ticketType}</p>
+        <p><strong>Date:</strong> ${item.date} - ${item.time}</p>
+        <p><strong>Place:</strong> ${item.place}</p>`;
+          } else if (item.type === "Password") {
+            content = `
+        <p><strong>Website:</strong> ${item.website}</p>
+        <p><strong>Username:</strong> ${item.username}</p>`;
+          }
+
+          card.innerHTML = content;
+
+          // Add edit and delete buttons
+          const buttonGroup = document.createElement("div");
+          buttonGroup.classList.add("d-flex", "justify-content-end", "mt-2");
+
+          const editButton = document.createElement("button");
+          editButton.classList.add("btn", "btn-warning", "btn-sm", "me-2");
+          editButton.textContent = "Edit";
+          editButton.onclick = function () {
+            // Redirect to itemDetails.html with item index as parameter
+            window.location.href = `itemDetails.html?id=${index}`;
+          };
+
+          const deleteButton = document.createElement("button");
+          deleteButton.classList.add("btn", "btn-danger", "btn-sm");
+          deleteButton.textContent = "Delete";
+          deleteButton.onclick = function () {
+            items.splice(index, 1); // Remove the item from the array
+            localStorage.setItem("walletItems", JSON.stringify(items)); // Update localStorage
+            renderItems(); // Re-render the list
+          };
+
+          buttonGroup.appendChild(editButton);
+          buttonGroup.appendChild(deleteButton);
+          card.appendChild(buttonGroup);
+
+          return card;
+        };
+
+        // Add Credit/Debit Card section
+        if (cards.length > 0) {
+          const cardHeading = document.createElement("h5");
+          cardHeading.innerText = "Credit/Debit Cards";
+          itemsContainer.appendChild(cardHeading);
+
+          cards.forEach((card, index) => {
+            const cardElement = createItemCard(card, index);
+            itemsContainer.appendChild(cardElement);
+          });
+        }
+
+        // Add Tickets/Passes section
+        if (tickets.length > 0) {
+          const ticketHeading = document.createElement("h5");
+          ticketHeading.innerText = "Tickets/Passes";
+          itemsContainer.appendChild(ticketHeading);
+
+          tickets.forEach((ticket, index) => {
+            const ticketElement = createItemCard(ticket, index);
+            itemsContainer.appendChild(ticketElement);
+          });
+        }
+
+        // Add Passwords section
+        if (passwords.length > 0) {
+          const passwordHeading = document.createElement("h5");
+          passwordHeading.innerText = "Passwords";
+          itemsContainer.appendChild(passwordHeading);
+
+          passwords.forEach((password, index) => {
+            const passwordElement = createItemCard(password, index);
+            itemsContainer.appendChild(passwordElement);
+          });
+        }
+
+        // Show a message if no items are found
+        if (items.length === 0) {
+          itemsContainer.innerHTML =
+            "<p>No items stored in your wallet yet.</p>";
+        }
+      }
+
+      // Add Export to PDF functionality
+      document.getElementById('exportPdfBtn').addEventListener('click', function() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const itemsContainer = document.getElementById('itemsContainer');
+        const items = itemsContainer.getElementsByClassName('item-card');
+
+        let yOffset = 20;
+        doc.setFontSize(18);
+        doc.text('Your Wallet Items', 20, yOffset);
+        yOffset += 10;
+
+        doc.setFontSize(12);
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i];
+          const itemText = item.innerText.split('\n');
+
+          for (let j = 0; j < itemText.length; j++) {
+            if (yOffset > 280) {
+              doc.addPage();
+              yOffset = 20;
+            }
+            doc.text(itemText[j], 20, yOffset);
+            yOffset += 10;
+          }
+
+          yOffset += 5;
+        }
+
+        doc.save('wallet_items.pdf');
+      });
+
+
+      // Call renderItems when the page loads
+      window.onload = function () {
+        renderItems();
+      };
+
+      // Set the current balance in the balance card
+      document.getElementById("currentBalance").innerText = user.balance;
+
+      // Show low balance alert if the balance is below 5000
+      if (user.balance < 5000) {
+        document.getElementById("lowBalanceAlert").classList.remove("d-none");
+      }
+
+      // Add Item button functionality
+      document
+        .getElementById("addItemBtn")
+        .addEventListener("click", function () {
+          window.location.href = "addItem.html";
+        });
+
+      // Purchase Movies button functionality (placeholder)
+      document
+        .getElementById("purchaseMoviesBtn")
+        .addEventListener("click", function () {
+          window.location.href = "purchase.html";
+        });
+
+      // Manage Wallet button functionality (placeholder)
+      document
+        .getElementById("manageWalletBtn")
+        .addEventListener("click", function () {
+          window.location.href = "walletManagement.html";
+        });
+
+      document
+        .getElementById("logoutBtn")
+        .addEventListener("click", function () {
+          window.location.href = "signup.html"; // Redirect to signup.html
+        });
+    </script>
+  </body>
+</html>

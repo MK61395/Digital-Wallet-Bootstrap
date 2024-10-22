@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digital Wallet - Purchase Movies</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #1a3636;
+        color: white;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+      }
+
+      .navbar-custom {
+        background-color: #40534c;
+        padding: 1rem;
+      }
+
+      .navbar-custom .navbar-brand {
+        margin: 0 auto;
+        font-size: 1.5rem;
+        color: #d6bd98;
+      }
+
+      .navbar-custom .material-icons {
+        color: #d6bd98;
+      }
+
+      .card-custom {
+        background-color: #40534c;
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .btn-custom {
+        background-color: #d6bd98;
+        color: #1a3636;
+        font-weight: 600;
+        padding: 12px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .btn-custom:hover {
+        background-color: #c7a57d;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .movie-card img {
+        border-radius: 15px;
+        max-height: 300px;
+        object-fit: cover;
+      }
+
+      .custom-margin {
+        margin-left: 20px; /* Adjust this value as needed */
+      }
+
+      /* Add these styles */
+      .notification-icon,
+      .logout-icon {
+        cursor: pointer; /* Change cursor to pointer */
+        margin-left: 20px; /* Add space between icons */
+        transition: color 0.3s ease; /* Smooth color transition */
+      }
+
+      .notification-icon:hover,
+      .logout-icon:hover,
+      .home-icon:hover {
+        color: #1a3636; /* Change color on hover */
+      }
+
+      .home-icon {
+        cursor: pointer; /* Change cursor to pointer */
+        /* Add space between icons */
+        transition: color 0.3s ease; /* Smooth color transition */
+      }
+
+      @media (max-width: 768px) {
+        .movie-card {
+          margin-bottom: 1rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-custom">
+      <div class="container-fluid">
+        <span class="material-icons float-start home-icon" id="homeBtn">home</span>
+        <span class="navbar-brand text-center">Digital Wallet</span>
+        <span class="material-icons float-end notification-icon">notifications</span>
+        <span class="material-icons float-end logout-icon custom-margin" id="logoutBtn">logout</span>
+      </div>
+    </nav>
+
+    <!-- Purchase Movies -->
+    <div class="container my-4">
+      <h2 class="text-center">Purchase Movie Tickets</h2>
+      <div class="row" id="movieList"></div>
+      <div id="message" class="mt-3 text-center"></div>
+    </div>
+
+    <script>
+      const user = JSON.parse(localStorage.getItem("user")) || { balance: 0 };
+      const movies = [
+        {
+          title: "Lord of the Rings III",
+          image: "rotk.jpg",
+          genre: "Fantasy",
+          releaseDate: "2003-12-17",
+          price: 300,
+        },
+        {
+          title: "No Country for Old Men",
+          image: "ncfom.jpg",
+          genre: "Suspense",
+          releaseDate: "2007-07-16",
+          price: 250,
+        },
+        {
+          title: "Dark Knight Rises",
+          image: "dkr.jpg",
+          genre: "Thriller",
+          releaseDate: "2012-03-19",
+          price: 400,
+        },
+        {
+          title: "The Godfather",
+          image: "tgf.jpg",
+          genre: "Crime",
+          releaseDate: "1972-11-05",
+          price: 350,
+        },
+      ];
+
+      const movieListElement = document.getElementById("movieList");
+
+      // Display movies
+      movies.forEach((movie, index) => {
+        const movieCard = `
+                <div class="col-md-3">
+                    <div class="card-custom movie-card text-center">
+                        <img src="${movie.image}" alt="${movie.title}">
+                        <h5 class="mt-2">${movie.title}</h5>
+                        <p>Genre: ${movie.genre}</p>
+                        <p>Release Date: ${movie.releaseDate}</p>
+                        <p>Price: $${movie.price}</p>
+                        <button class="btn btn-custom buy-button" data-index="${index}">Buy Ticket</button>
+                    </div>
+                </div>
+            `;
+        movieListElement.innerHTML += movieCard;
+      });
+
+      // Buy button functionality
+      const buyButtons = document.querySelectorAll(".buy-button");
+      buyButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+          const index = this.getAttribute("data-index");
+          const selectedMovie = movies[index];
+
+          if (user.balance >= selectedMovie.price) {
+            user.balance -= selectedMovie.price; // Deduct price from balance
+
+            // Create a transaction object
+            const transaction = {
+              title: selectedMovie.title,
+              price: selectedMovie.price,
+              date: new Date().toLocaleString(), // Store the date and time
+              type: "purchase", // Indicate that this was a purchase
+            };
+
+            // Check if transactions property exists, if not, initialize it
+            if (!user.transactions) {
+              user.transactions = [];
+            }
+
+            // Add the new transaction to the user's transaction history
+            user.transactions.unshift(transaction);
+
+            // Keep only the last 10 transactions
+            if (user.transactions.length > 10) {
+              user.transactions.pop(); // Remove the oldest transaction
+            }
+
+            // Save the updated user object back to local storage
+            localStorage.setItem("user", JSON.stringify(user));
+
+            document.getElementById(
+              "message"
+            ).textContent = `Purchase successful! You bought a ticket for ${selectedMovie.title}. Your new balance is $${user.balance}.`;
+            document.getElementById("message").style.color = "#d6bd98";
+          } else {
+            document.getElementById("message").textContent =
+              "Insufficient balance! Please add more funds to your wallet.";
+            document.getElementById("message").style.color = "red";
+          }
+        });
+      });
+
+      document
+        .getElementById("logoutBtn")
+        .addEventListener("click", function () {
+          window.location.href = "signup.html"; // Redirect to signup.html
+        });
+
+      document.getElementById("homeBtn").addEventListener("click", function () {
+        window.location.href = "dashboard.html"; // Redirect to dashboard.html
+      });
+    </script>
+  </body>
+</html>
